@@ -1,3 +1,10 @@
+> **IK Agent experimental fork** of
+> [xai-org/grok-build](https://github.com/xai-org/grok-build) (Apache-2.0).  
+> See **[FORK.md](./FORK.md)** and **[experimental/](./experimental/)** for
+> goals, remotes (`upstream` / `origin`), and how to add harness experiments.  
+> Daily cloud coding: keep the official `grok` install. This tree is for
+> building a custom harness binary and prototyping tools.
+
 <div align="center">
 
 <h1>
@@ -7,7 +14,7 @@
     <img alt="SpaceXAI logo" src="https://media.x.ai/v1/website/spacexai-symbol-black-transparent-6435cf42.png" width="96">
   </picture>
   <br>
-  Grok Build (<code>grok</code>)
+  Grok Build (<code>grok</code>) — IK fork base
 </h1>
 
 **Grok Build** is SpaceXAI's terminal-based AI coding agent. It runs as a
@@ -16,6 +23,8 @@ commands, searches the web, and manages long-running tasks — interactively,
 headlessly for scripting/CI, or embedded in editors via the Agent Client
 Protocol (ACP).
 
+[FORK.md](./FORK.md) ·
+[experimental/](./experimental/) ·
 [Installing the released binary](#installing-the-released-binary) ·
 [Building from source](#building-from-source) ·
 [Documentation](#documentation) ·
