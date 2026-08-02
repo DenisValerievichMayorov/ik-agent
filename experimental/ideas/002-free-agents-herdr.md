@@ -1,6 +1,8 @@
 # 002 — Free agents inside Herdr, orchestrated by IK
 
-## Status (2026-08-02): **v1 live (scripts + agent profile)**
+## Status (2026-08-02): **v1.1 verified (scripts + agent profile)**
+
+`doctor` + oneshot + interactive PASS. Bridge: `agent_tools/ik_herdr_free.py`.
 
 Not in binary tools yet (Windows rebuild cost). Orchestration via:
 
