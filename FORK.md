@@ -43,15 +43,43 @@ After a large sync, re-apply only the patches you still want under
 
 ## Build (same as upstream)
 
-Requirements: Rust (see `rust-toolchain.toml`), DotSlash, protoc.
+Requirements: Rust (see `rust-toolchain.toml`), protoc (or DotSlash + `bin/protoc`).
 
-```powershell
+### Linux / macOS
+
+```sh
 cargo build -p xai-grok-pager-bin --release
-# artifact: target/release/xai-grok-pager  (install/rename as ik or grok-ik)
+# artifact: target/release/xai-grok-pager
 ```
 
-Windows builds are **best-effort** (upstream note). Prefer WSL/Linux for
-reliable release builds if MSVC/gnu fails.
+### Windows (MSVC) — verified 2026-08-02
+
+Prereqs:
+
+1. Visual Studio 2022/2026 with MSVC
+2. **Windows 11 SDK** (need `kernel32.lib` under `Windows Kits\10\Lib\...`)
+3. `protoc` on PATH or `PROTOC=...\protoc.exe` (e.g. protobuf 29.3 win64 zip)
+4. Toolchain: `rustup toolchain install 1.92.0-x86_64-pc-windows-msvc`
+
+```bat
+call "C:\Program Files\Microsoft Visual Studio\18\Community\VC\Auxiliary\Build\vcvars64.bat"
+set PROTOC=C:\path\to\protoc.exe
+cd Sync\projects\ik-agent
+REM Final link: MSVC hits LNK4319 (PDB public-symbol limit) without this:
+cargo +1.92.0-x86_64-pc-windows-msvc rustc -p xai-grok-pager-bin --release -- -C link-arg=/DEBUG:NONE
+```
+
+Install:
+
+```powershell
+Copy-Item target\release\xai-grok-pager.exe $env:USERPROFILE\.ik\bin\ik.exe -Force
+Copy-Item target\release\xai-grok-pager.exe $env:USERPROFILE\.local\bin\ik.exe -Force
+```
+
+Smoke: `ik --version` → should report fork commit (e.g. `0.2.110 (810d1fd…)`), not stock xAI 0.2.118.
+
+Windows builds remain **best-effort** upstream; this fork carries the protoc
+Windows patch so codegen works.
 
 ## Where to add experiments
 

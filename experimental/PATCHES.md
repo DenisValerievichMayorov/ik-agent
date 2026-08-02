@@ -6,6 +6,7 @@ Baseline: `upstream/main` @ `a5727c5` (“Synced from monorepo”), `SOURCE_REV`
 | Date | Patch | Files | Status |
 |------|--------|-------|--------|
 | 2026-08-02 | Fork bootstrap (docs + experimental scaffold only) | `FORK.md`, `experimental/**`, `README.md` | active |
+| 2026-08-02 | Windows protoc: avoid `/dev/stdout` + `/dev/null` in dep scan | `crates/build/xai-proto-build/src/lib.rs` | active |
+| 2026-08-02 | Windows link: final binary needs `/DEBUG:NONE` (LNK4319 PDB limit) | build flags only (see FORK.md) | active |
 
-No runtime/code patches in the initial public fork. Former Ollama tool-call
-fallbacks were intentionally **not** carried over.
+Former Ollama tool-call fallbacks were intentionally **not** carried over.

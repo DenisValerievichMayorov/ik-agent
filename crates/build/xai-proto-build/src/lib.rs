@@ -113,11 +113,38 @@ impl XaiProtoBuilder {
         }
 
         // Can only process one input file when using --dependency_out=FILE.
+        // On Windows protoc cannot write to /dev/stdout or /dev/null (Unix paths),
+        // so use temp files there. Unix keeps the original /dev/* path approach.
         for proto in protos {
             let mut command = Command::new(protoc.unwrap_or(Path::new("protoc")));
+
+            let dep_tmp;
+            let desc_tmp;
+            let (dep_out, desc_out, dep_from_file) = if cfg!(windows) {
+                dep_tmp = tempfile::NamedTempFile::new().context("create dep tempfile")?;
+                desc_tmp = tempfile::NamedTempFile::new().context("create desc tempfile")?;
+                (
+                    dep_tmp.path().to_path_buf(),
+                    desc_tmp.path().to_path_buf(),
+                    true,
+                )
+            } else {
+                (
+                    PathBuf::from("/dev/stdout"),
+                    PathBuf::from("/dev/null"),
+                    false,
+                )
+            };
+
             command
-                .arg("--dependency_out=/dev/stdout")
-                .arg("--descriptor_set_out=/dev/null");
+                .arg(format!(
+                    "--dependency_out={}",
+                    dep_out.to_str().context("dep path not UTF-8")?
+                ))
+                .arg(format!(
+                    "--descriptor_set_out={}",
+                    desc_out.to_str().context("desc path not UTF-8")?
+                ));
 
             // Add protoc's well-known types include directory first (if found).
             // This is needed for Bazel sandboxed builds where protoc and its
@@ -143,22 +170,50 @@ impl XaiProtoBuilder {
                 return Err(anyhow::anyhow!("protoc command failed"));
             }
 
-            let output =
-                String::from_utf8(output.stdout).context("protoc command output not UTF-8")?;
+            let dep_text = if dep_from_file {
+                fs::read_to_string(&dep_out).context("read protoc dependency file")?
+            } else {
+                String::from_utf8(output.stdout).context("protoc command output not UTF-8")?
+            };
 
-            let mut lines = output.lines();
-            let first_line = lines.next().context("protoc command output is empty")?;
-            let prefix = "/dev/null:";
-            let rem = first_line.strip_prefix(prefix).with_context(|| {
-                format!("protoc command output must start with /dev/null: {output:?}")
-            })?;
+            let mut lines = dep_text.lines();
+            let first_line = lines
+                .next()
+                .context("protoc dependency output is empty")?;
+            // Makefile-style: "<descriptor_out>: <deps...>".
+            // Unix uses /dev/null; Windows uses a real path (drive letter has ':').
+            let rem = if cfg!(windows) {
+                // Skip "X:" drive prefix, then take the next ':' separator.
+                let search_from = if first_line.len() >= 2
+                    && first_line.as_bytes()[1] == b':'
+                    && first_line.as_bytes()[0].is_ascii_alphabetic()
+                {
+                    2
+                } else {
+                    0
+                };
+                match first_line[search_from..].find(':') {
+                    Some(rel) => &first_line[search_from + rel + 1..],
+                    None => first_line,
+                }
+            } else {
+                first_line
+                    .strip_prefix("/dev/null:")
+                    .unwrap_or(first_line)
+            };
             for line in iter::once(rem).chain(lines) {
                 let line = line.trim();
-                let line = line.strip_suffix("\\").unwrap_or(line);
+                let line = line.strip_suffix('\\').unwrap_or(line);
                 // Depending on absolute paths like
                 // /Users/user/homebrew/Cellar/protobuf/29.1/include/google/protobuf/timestamp.proto
                 // is valid, but we want to have output more deterministic.
-                if line.contains("/include/google/protobuf/") {
+                if line.contains("/include/google/protobuf/")
+                    || line.contains("\\include\\google\\protobuf\\")
+                {
+                    continue;
+                }
+
+                if line.is_empty() {
                     continue;
                 }
 
