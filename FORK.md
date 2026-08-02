@@ -100,3 +100,8 @@ Prefer **small, reviewable patches** + an entry in `experimental/PATCHES.md`.
 Upstream first-party code: **Apache License 2.0** (see `LICENSE`,
 `THIRD-PARTY-NOTICES`). This fork retains that license. Add your own notices
 when you introduce substantial original code.
+
+### Install when ik.exe is locked
+
+If Herdr/Grok holds ik.exe, copy to ik-new.exe and use launcher ~/.ik/bin/ik.ps1 (prefers newest).
+Smoke: ik-new.exe --version → commit hash of this fork.
