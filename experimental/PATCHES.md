@@ -1,4 +1,4 @@
-# Patches vs upstream
+﻿# Patches vs upstream
 
 Baseline: `upstream/main` @ `a5727c5` (“Synced from monorepo”), `SOURCE_REV`
 `30192d2eef5d91a8fff0e53957de5bd05b43398c`.
@@ -9,6 +9,8 @@ Baseline: `upstream/main` @ `a5727c5` (“Synced from monorepo”), `SOURCE_REV`
 | 2026-08-02 | Windows protoc: avoid `/dev/stdout` + `/dev/null` in dep scan | `crates/build/xai-proto-build/src/lib.rs` | active |
 | 2026-08-02 | Windows link: final binary needs `/DEBUG:NONE` (LNK4319 PDB limit) | build flags only (see FORK.md) | active |
 | 2026-08-02 | Free-herd orchestration (scripts, not binary tools yet) | `agent_tools/ik_herdr_free.py`, `~/.grok/agents/ik.md`, skill `ik-herdr-free` | active |
+| 2026-08-02 | Free-herd v1.8 LIVE roster + queue/bg/metrics/day | `Tools/agent_tools/ik_*.py`, skill, experimental/ideas/002 | active |
 
 Former Ollama tool-call fallbacks were intentionally **not** carried over.
 Free agents in Herdr: see `experimental/ideas/002-free-agents-herdr.md`.
+
